@@ -1,0 +1,161 @@
+%%%--- TITEL OG FORFATTER ---%%%
+\newcommand{\tit}{Benchmarking the Lattice Boltzmann model implemented using NumPy and PyCUDA}
+\newcommand{\aut}{Jens Bang \& Jacob Salomonsen}
+\newcommand{\subj}{Bachelor Project}
+\newcommand{\mail}{\href{mailto:bachelor@snej.dk}{bachelor@snej.dk} or \href{mailto:jiekebo@gmail.com}{jiekebo@gmail.com}}
+
+\newcommand{\subfigureautorefname}{\figureautorefname}
+
+%%%--- PREAMBLE INCLUDE ---%%%
+\input{preamble.tex}
+\usepackage[numbered,framed]{mcode}
+%\usepackage[danish]{babel}				% Dansk orddeling osv.
+%\usepackage[fixlanguage]{babelbib}		% Sprogpakke til BibTeX
+%\selectbiblanguage{danish}				% Sprogvalg til BibTeX
+
+%%%--- LISTISTINGS SETUP ---%%%
+\lstset{
+language=Python, 						% choose the language of the code
+basicstyle=\scriptsize,					% the size of the fonts that are used for the code
+%numbers=left,							% where to put the line-numbers
+%numberstyle=\footnotesize,				% the size of the fonts that are used for the line-numbers
+%stepnumber=2,							% the step between two line-numbers. If it's 1 each line will be numbered
+%numbersep=5pt,							% how far the line-numbers are from the code
+%backgroundcolor=\color{white},			% choose the background color. You must add \usepackage{color}
+%showspaces=false,						% show spaces adding particular underscores
+%showstringspaces=false,					% underline spaces within strings
+%showtabs=false,							% show tabs within strings adding particular underscores
+%frame=single,							% adds a frame around the code
+%tabsize=2,								% sets default tabsize to 2 spaces
+captionpos=b,							% sets the caption-position to bottom
+%breaklines=true,						% sets automatic line breaking
+%breakatwhitespace=false,				% sets if automatic breaks should only happen at whitespace
+%escapeinside={\%*}{*)}					% if you want to add a comment within your code
+}
+
+%%%--- FANCYHDR ---%%%
+\pagestyle{fancy}
+\chead{}
+\lhead{\aut}
+\rhead{\nouppercase{\leftmark}}
+\cfoot{}
+\lfoot{\today}
+\rfoot{\thepage}
+
+%%%--- DOKUMENT STARTER HER ---%%%
+\begin{document}
+
+%%%--- Title ---%%%%
+\begin{titlepage}
+\HRule
+\begin{center}\huge{\bfseries{\tit}}\end{center}
+\HRule
+\\[1.0cm]
+\begin{center}
+\aut
+\\[0.5cm]
+\mail
+\\[0.5cm]
+Supervisor - Professor Brian Vinter
+\\[0.5cm]
+\subj
+\\[1.5cm]
+Department of Computer Science
+\\[0.5cm]
+University of Copenhagen
+\end{center}
+\vfill
+\begin{center}\today\end{center}
+\end{titlepage}
+
+%%%--- Tekst ---%%%
+
+\section*{Abstract (\textit{Jens Bang})}
+
+The Lattice Boltzmann Model is widely used for various simulations of movement of liquids and gases. This paper will show that it is possible to achieve even high gains in execution speed by combining ease of implementation and parallel processing, by implementing the Lattice Boltzmann Model in Python, using the PyCUDA extension to access the highly parallel CUDA architecture. We will compare run times between the PyCUDA version and a version utilizing the more conventional, and not parallel, NumPy extension, to show the speed increases.
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction (\textit{Jens Bang})}
+
+This paper is a bachelor thesis written by bachelor degree students at The Computer Science Department of The University of Copenhagen. As such the intended readers are anyone with an interest in the subject matter, as well as a basic understanding of computer science and programming in Python. The object of the thesis is to examine a possible gain in execution speed, when using CUDA to implement the Lattice Boltzmann Model. It is not the object of the thesis to fully explain the Lattice Boltzmann Model, so while a reasonable understanding of physics is preferrable, it is not necessary.
+
+When we started working on the project, the plan was to implement the Lattice Boltzmann Model in two version, both using CUDA. One version in Python, and one version in C/C++. The object was to compare CUDA implementations in Python and C/C++, to see if the ease of implementation in Python would carry with it a loss of execution speed, as compared to the execution speed of the more cumbersome implementation time of C/C++.
+
+During the initial work on the project we realized that writing CUDA code in Python is done by simply embedding CUDA C code in the Python code. This CUDA C code will then be passed on to precisely the same compiler as the CUDA code in the C/C++ version. This would essentially mean that comparing the run times of the two implementations, would only reveal the differences between the run times of the initializing code, and would reveal nothing about the run times of the CUDA itself.
+
+Since this would be a comparison of normal C/C++ code run times to normal Python code run times, with no CUDA involved, a case that has already been extensively documented, and since we wanted to investigate a possible increase/decrease in execution speed when implementing CUDA code in Python, as opposed to implementing the same CUDA code in C/C++, going further would clearly not accomplish anything new. For this reason we, in agreement with out advisor, changed the scope of the thesis to investigate possible speed increases or decreses, when implementing the Lattice Boltzmann Model in Python using PyCUDA, as opposed to implementing the same model in Python using NumPy.
+
+The two Python implementations of the Lattice Boltzmann Model are both based on a MatLab implementation of the model, which will be introduced in the Matlab implementation analysis section (\autoref{sec:matlabimplementation}) of this thesis.
+
+\newpage
+
+\section{Abbreviations}
+
+\begin{figure}[htb]
+\centering
+	\begin{tabular}{lcl}
+	    CPU & = & Central processing unit\\
+	    CUDA & = & Compute Unified Device Architecture\\
+		D2Q9 & = & Two dimensional, 9 directional vectors per lattice-point\\
+		D3Q19 & = & Three dimensional, 19 directional vectors per lattice-point\\
+		GPU & = & Graphics processing unit\\
+		LBM & = & Lattice Boltzmann Method\\
+		PTX & = & Parallel Thread Execution\\
+		SIMD & = & Single instruction, multiple data\\
+		SIMT & = & Single Instruction Multiple Threads
+	\end{tabular}
+\end{figure}
+
+\newpage
+\input{theory.tex}
+
+\newpage
+\input{implementation.tex}
+
+\newpage
+\input{testing.tex}
+
+\newpage
+\input{results.tex}
+
+\newpage
+\section{Conclusion}
+
+The revised goals of this thesis was to show the increase in execution speed, when switching a Python implementation of the Lattice Boltzmann Model from NumPy to PyCUDA. While we realize that comparing the execution speed of a NumPy, which always only runs on one core, and PyCUDA, which is highly parallel in nature, running on multiple cores, scientifically speaking is like comparing apples and oranges, we wanted to show the gain in a real-life setting, and so we feel that the comparison is valid.
+
+As outlined in \autoref{usingthelbm} the Lattice Boltzmann Model is widely used in many different circumstances, to model a large variety of things. This is why we feel it is important to show the speed increase, when switching from NumPy to PyCUDA, because that is the benefit any programmer will see, when implementing the same switch from NumPy to PyCUDA.
+
+We started by writing a Python implementation of the supplied Matlab script, using NumPy. When we were certain of the correctness of this implementation, we wrote the PyCUDA version of the Python script, and tested the correctness of this new implementation. Then we performed time studies to see what kind, if any, of speed increase we would get. As expected the speed increase is quite significant, especially with larger problem spaces.
+
+As mentioned in \autoref{sec:runningtime} the graph shapes in \autoref{results} are reminiscent of quadratic functions. But while the execution time the NumPy version very quickly becomes unmanageable, the execution time for the PyCUDA version increases at a much slower rate. In fact the PyCUDA version is able to run problem spaces almost 3.5 times larger than the NumPy version in the same time frame.
+
+We have clearly done what we set out to do, which was to show a speed increase when switching a Python implementation from using NumPy to PyCUDA.
+
+\subsection{Where to go from here?}
+
+There are two obvious ways to go from here:
+
+\begin{enumerate}
+\item As mentioned in \autoref{sec:testing} the PyCUDA version is unoptimized, and it could be very interesting to see what kind of speed gains there is to be found by optimizing the code.
+\item Another interesting angle would be to examine if OpenCL is comparable to CUDA, or if it delivers even greater speed increases.
+\end{enumerate}
+
+\newpage
+\input{appendix.tex}
+
+\newpage
+\section{Bibliography}
+
+To ensure access to the various on-line documents we have used as references, we have created a page with PDF files produced from the documents that were available when we published our thesis: \url{http://www.snej.dk/lbm/}.
+
+\bibliographystyle{plain}
+\bibliography{library}
+\addcontentsline{toc}{section}{References}
+
+%%%---BibTeX ---%%%
+%(Compile: 1 x LaTeX 1 x Bibtex 2 x LaTex)%
+
+\end{document}

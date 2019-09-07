@@ -1,0 +1,9 @@
+## generic files to ignore
+*.aux
+*.dvi
+bachelor-main.pdf
+*.log
+*.out
+*.bbl
+*.blg
+*.toc
